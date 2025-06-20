@@ -1,6 +1,7 @@
 from typing import Optional
 
 from beanie import Document, Indexed
+from fastapi import Form
 from pydantic import BaseModel
 
 
@@ -44,3 +45,28 @@ class AlbumUpdate(BaseModel):
 
 class AlbumUpdateRate(BaseModel):
     rate: float
+
+
+class AlbumForm(BaseModel):
+    title: str
+    artist: str
+    ranking: int
+    year: int
+    rate: float | None = None
+
+    @classmethod
+    def as_form(
+        cls,
+        title: str = Form(...),
+        artist: str = Form(...),
+        ranking: int = Form(...),
+        year: int = Form(...),
+        rate: float | None = Form(None),
+    ):
+        return cls(
+            title=title,
+            artist=artist,
+            ranking=ranking,
+            year=year,
+            rate=rate,
+        )

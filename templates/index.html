@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Albums</h2>
+
+{% if albums %}
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Ranking</th>
+                <th>Título</th>
+                <th>Artista</th>
+                <th>Ano</th>
+                <th>Nota</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for album in albums %}
+            <tr>
+                <td>{{ album.ranking }}</td>
+                <td>{{ album.title }}</td>
+                <td>{{ album.artist }}</td>
+                <td>{{ album.year }}</td>
+                <td>{{ album.rate or "N/A" }}</td>
+                <td>
+                    <a href="/albums/{{ album.id }}">Ver</a> |
+                    <a href="#" onclick="deletar('{{ album.id }}')">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Nenhum álbum encontrado.</p>
+{% endif %}
+    <script>
+        console.log("Script carregado");
+
+        function deletar(id) {
+            console.log("Clicou em excluir o ID:", id);
+
+                fetch(`/albums/${id}`, {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert("Erro ao excluir.");
+                    }
+                });
+        }
+    </script>
+{% endblock %}

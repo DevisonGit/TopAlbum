@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-
+from fastapi.staticfiles import StaticFiles
 from src.database import init_db
 from src.routers import router
 
@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):  # pragma: no cover
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(router)
+app.mount('/static', StaticFiles(directory='static'), name='static')
 
 
 @app.get('/')
