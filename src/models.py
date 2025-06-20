@@ -26,13 +26,12 @@ class Album(Document):
 
 
 class AlbumUpdate(BaseModel):
-    title: Optional[str]
-    artist: Optional[str]
-    ranking: Optional[int]
-    year: Optional[int]
+    title: Optional[str] = None
+    artist: Optional[str] = None
+    ranking: Optional[int] = None
+    year: Optional[int] = None
 
     class Config:
-        allow_population_by_alias = True
         json_schema_extra = {
             'example': {
                 'title': 'name albums',

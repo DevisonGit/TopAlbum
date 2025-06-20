@@ -16,7 +16,7 @@ async def create_album(album: Album):
         return album
     except DuplicateKeyError:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail='Ranking já em uso'
+            status_code=HTTPStatus.BAD_REQUEST, detail='Ranking in use'
         )
 
 
