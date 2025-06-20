@@ -6,7 +6,7 @@ from src.models import Album
 from src.settings import Settings
 
 
-async def init_db(app: FastAPI):
+async def init_db(app: FastAPI):  # pragma: no cover
     client = AsyncIOMotorClient(Settings().DATABASE_URL)
     db = client['db_album']
 

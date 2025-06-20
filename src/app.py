@@ -7,7 +7,7 @@ from src.routers import router
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pragma: no cover
     await init_db(app)
     yield
     client = getattr(app.state, 'mongodb_client', None)

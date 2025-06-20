@@ -2,7 +2,6 @@ import factory
 import pytest
 import pytest_asyncio
 from beanie import init_beanie
-from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient
 from testcontainers.mongodb import MongoDbContainer
@@ -66,14 +65,3 @@ async def album(test_app):
 async def cleanup_database(test_app):
     for collection in await test_app.state.mongodb.list_collection_names():
         await test_app.state.mongodb[collection].delete_many({})
-
-
-@pytest.fixture(scope='module')
-def fastapi_app() -> FastAPI:
-    """Retorna a instância do FastAPI com o lifespan configurado."""
-    return app
-
-
-@pytest.fixture
-def anyio_backend():
-    return 'asyncio'
