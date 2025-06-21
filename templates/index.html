@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Albums</h2>
 
 {% if albums %}
     <table border="1" cellpadding="8" cellspacing="0">
@@ -25,7 +24,7 @@
                 <td>{{ album.rate or "N/A" }}</td>
                 <td>
                     <a href="/albums/{{ album.id }}">Ver</a> |
-                    <a href="#" onclick="deletar('{{ album.id }}')">Excluir</a>
+                    <a href="/albums/{{ album.id }}/rate">Avaliar</a>
                 </td>
             </tr>
             {% endfor %}
@@ -34,21 +33,4 @@
 {% else %}
     <p>Nenhum álbum encontrado.</p>
 {% endif %}
-    <script>
-        console.log("Script carregado");
-
-        function deletar(id) {
-            console.log("Clicou em excluir o ID:", id);
-
-                fetch(`/albums/${id}`, {
-                    method: 'DELETE'
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.reload();
-                    } else {
-                        alert("Erro ao excluir.");
-                    }
-                });
-        }
-    </script>
 {% endblock %}

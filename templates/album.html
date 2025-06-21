@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if album %}
+            <tr>
+                <td>Ranking: {{ album.ranking }}</td>
+                <td>Title: {{ album.title }}</td>
+                <td>Artist: {{ album.artist }}</td>
+                <td>Year: {{ album.year }}</td>
+                <td>Rate: {{ album.rate or "N/A" }}</td>
+
+            </tr>
+{% else %}
+    <p>Nenhum álbum encontrado.</p>
+{% endif %}
+{% endblock %}
