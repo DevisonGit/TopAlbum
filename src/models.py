@@ -1,19 +1,34 @@
-from typing import Optional
+from typing import Literal, Optional
 
-from beanie import Document, Indexed
-from fastapi import Form
+import pymongo
+from beanie import Document, PydanticObjectId
 from pydantic import BaseModel
+from pymongo import IndexModel
 
 
 class Album(Document):
     title: str
     artist: str
-    ranking: Indexed(int, unique=True)
+    ranking: int
     year: int
-    rate: float | None = None
+    media: float | None = None
+    list_type: Literal[
+        'brasil', 'rollingstone-internacional', 'rollingstone-brasil'
+    ]
 
     class Settings:
         name = 'albums'
+        indexes = [
+            'ranking',
+            [
+                ('ranking', pymongo.ASCENDING),
+                ('list_type', pymongo.DESCENDING),
+            ],
+            IndexModel(
+                [('list_type', pymongo.DESCENDING)],
+                name='test_string_index_DESCENDING',
+            ),
+        ]
 
     class Config:
         json_schema_extra = {
@@ -29,7 +44,6 @@ class Album(Document):
 class AlbumUpdate(BaseModel):
     title: Optional[str] = None
     artist: Optional[str] = None
-    ranking: Optional[int] = None
     year: Optional[int] = None
 
     class Config:
@@ -43,30 +57,10 @@ class AlbumUpdate(BaseModel):
         }
 
 
-class AlbumUpdateRate(BaseModel):
+class AlbumUserRate(Document):
+    user_id: str
+    album_id: PydanticObjectId
     rate: float
 
-
-class AlbumForm(BaseModel):
-    title: str
-    artist: str
-    ranking: int
-    year: int
-    rate: float | None = None
-
-    @classmethod
-    def as_form(
-        cls,
-        title: str = Form(...),
-        artist: str = Form(...),
-        ranking: int = Form(...),
-        year: int = Form(...),
-        rate: float | None = Form(None),
-    ):
-        return cls(
-            title=title,
-            artist=artist,
-            ranking=ranking,
-            year=year,
-            rate=rate,
-        )
+    class Settings:
+        name = 'user_album_ratings'

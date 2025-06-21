@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="{{ url_for('static', path='/style-home.css') }}">
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>Bem-vindo ao Projeto Top Álbuns</h1>
+        <p>Explore as diferentes listas de álbuns históricos e avalie seus favoritos!<br>
+          Você pode visualizar os álbuns, dar sua nota pessoal e ver a média de avaliações dos usuários.
+        </p>
+
+        <div class="list-options">
+            <a href="/albums/brasil">🎶 500 Álbuns Mais Importantes do Brasil</a>
+            <a href="/albums/rollingstone-internacional">🌍 500 Álbuns da Rolling Stone (Internacional)</a>
+            <a href="/albums/rollingstone-brasil">🇧🇷 100 Álbuns da Rolling Stone Brasil</a>
+        </div>
+    </div>
+{% endblock %}

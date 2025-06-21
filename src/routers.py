@@ -1,21 +1,59 @@
 from http import HTTPStatus
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pymongo.errors import DuplicateKeyError
 
-from src.models import Album, AlbumUpdate, AlbumUpdateRate
+from src.models import Album, AlbumUpdate, AlbumUserRate
 
 router = APIRouter(prefix='/albums', tags=['albums'])
 templates = Jinja2Templates(directory='templates')
 
-@router.get('/', response_class=HTMLResponse)
-async def list_albums(request: Request):
-    albums = await Album.find_all().sort('-ranking').to_list()
+
+def get_current_user():
+    return 'user8999'
+
+
+@router.get('/{list_type}', response_class=HTMLResponse)
+async def list_albums(
+    list_type: str, request: Request, user_id: str = Depends(get_current_user)
+):
+    albums = (
+        await Album.find(Album.list_type == list_type)
+        .sort('-ranking')
+        .to_list()
+    )
+    ratings = await AlbumUserRate.find(
+        AlbumUserRate.user_id == user_id
+    ).to_list()
+    ratings_dict = {r.album_id: r.rate for r in ratings}
+
+    albums_data = []
+
+    for album in albums:
+        albums_data.append({
+            'id': str(album.id),
+            'ranking': album.ranking,
+            'title': album.title,
+            'artist': album.artist,
+            'year': album.year,
+            'media': album.media,
+            'rate': ratings_dict.get(album.id),
+        })
+
+    titles = {
+        'brasil': '500 Álbuns Mais Importantes do Brasil',
+        'rollingstone-internacional': '500 Álbuns da '
+        'Rolling Stone (Internacional)',
+        'rollingstone-brasil': '100 Álbuns da Rolling Stone Brasil',
+    }
+    list_type = titles.get(list_type)
+
     return templates.TemplateResponse(
-        'index.html', {'request': request, 'albums': albums}
+        'index.html',
+        {'request': request, 'albums': albums_data, 'lista': list_type},
     )
 
 
@@ -30,15 +68,22 @@ async def create_album(album: Album):
         )
 
 
-@router.get('/{id}')
-async def get_album_id(id: PydanticObjectId, request: Request):
+@router.get('/id/{id}')
+async def get_album_id(
+    id: PydanticObjectId,
+    request: Request,
+    user_id: str = Depends(get_current_user),
+):
     album = await Album.get(id)
     if not album:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Album not found'
         )
+    rating = await AlbumUserRate.find_one({'user_id': user_id, 'album_id': id})
+    user_rate = rating.rate if rating else None
+
     return templates.TemplateResponse(
-        'album.html', {'request': request, 'album': album}
+        'album.html', {'request': request, 'album': album, 'rate': user_rate}
     )
 
 
@@ -68,15 +113,41 @@ async def delete_album(id: PydanticObjectId):
     return JSONResponse(content={'ok': True})
 
 
-@router.patch('/{id}/rate')
-async def update_rate_album(id: PydanticObjectId, update: AlbumUpdateRate):
+@router.post('/{id}/rate')
+async def update_rate_album(
+    id: PydanticObjectId,
+    request: Request,
+    rate: float = Form(...),
+    user_id: str = Depends(get_current_user),
+):
     album = await Album.get(id)
     if not album:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Album not found'
         )
+    rating = await AlbumUserRate.find_one({'user_id': user_id, 'album_id': id})
 
-    album.rate = update.rate
+    if rating:
+        rating.rate = rate
+        await rating.save()
+    else:
+        await AlbumUserRate(user_id=user_id, album_id=id, rate=rate).insert()
+    await update_media(album)
+    return templates.TemplateResponse(
+        'album.html', {'request': request, 'album': album, 'rate': rate}
+    )
+
+
+async def update_media(album):
+    ratings = await AlbumUserRate.find(
+        AlbumUserRate.album_id == album.id
+    ).to_list()
+    media = (
+        round(sum(r.rate for r in ratings) / len(ratings), 2)
+        if ratings
+        else None
+    )
+
+    # Atualiza o campo no álbum
+    album.media = media
     await album.save()
-
-    return album

@@ -1,7 +1,8 @@
+<link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
 {% extends "base.html" %}
 
 {% block content %}
-
+<h2>Lista {{ lista }}</h2>
 {% if albums %}
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
@@ -11,6 +12,7 @@
                 <th>Artista</th>
                 <th>Ano</th>
                 <th>Nota</th>
+                <th>Media</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -21,10 +23,14 @@
                 <td>{{ album.title }}</td>
                 <td>{{ album.artist }}</td>
                 <td>{{ album.year }}</td>
-                <td>{{ album.rate or "N/A" }}</td>
+                <td>{{ album.rate if album.rate is not none else "N/A" }}</td>
+                <td>{{ album.media or "N/A" }}</td>
                 <td>
-                    <a href="/albums/{{ album.id }}">Ver</a> |
-                    <a href="/albums/{{ album.id }}/rate">Avaliar</a>
+                    <a href="/albums/id/{{ album.id }}">Ver Infos</a>
+                    <form action="/albums/{{ album.id }}/rate" method="post">
+                        <input type="number" name="rate" step="0.1" min="0" max="10" value="{{ album.rate or '' }}">
+                        <button type="submit">Salvar nota</button>
+                    </form>
                 </td>
             </tr>
             {% endfor %}
