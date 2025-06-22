@@ -17,6 +17,7 @@ router = APIRouter(prefix='/albums', tags=['albums'])
 async def list_albums(
     list_type: str, request: Request, user_id: str = Depends(get_current_user_from_cookie)
 ):
+    is_authenticated = user_id is not None
     albums = (
         await Album.find(Album.list_type == list_type)
         .sort('-ranking')
@@ -50,7 +51,8 @@ async def list_albums(
 
     return templates.TemplateResponse(
         'albums/list.html',
-        {'request': request, 'albums': albums_data, 'lista': list_type},
+        {'request': request, 'albums': albums_data, 'lista': list_type,
+         'is_authenticated': is_authenticated},
     )
 
 

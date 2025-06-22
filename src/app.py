@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Depends
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from src.database import init_db
 from src.albums.routers import router
+from src.security import get_current_user_from_cookie
 from src.users.router import router as router_user
 from src.auth.routers import router as router_auth
 from src.templates import templates
@@ -30,5 +31,11 @@ app.mount('/static', StaticFiles(directory='static'), name='static')
 
 
 @app.get('/', response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse('home.html', {'request': request})
+async def home(request: Request, user_id: str = Depends(get_current_user_from_cookie)):
+    is_authenticated = user_id is not None
+    return templates.TemplateResponse('home.html', {'request': request, 'is_authenticated': is_authenticated})
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    return Response(status_code=204)

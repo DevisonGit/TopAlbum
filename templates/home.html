@@ -2,16 +2,49 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
-        <h1>Bem-vindo ao Projeto Top Álbuns</h1>
-        <p>Explore as diferentes listas de álbuns históricos e avalie seus favoritos!<br>
-          Você pode visualizar os álbuns, dar sua nota pessoal e ver a média de avaliações dos usuários.
+<div class="container">
+    <h1>Bem-vindo ao Projeto Top Álbuns</h1>
+    <p>
+        Explore as diferentes listas de álbuns históricos e avalie seus favoritos!<br>
+        Você pode visualizar os álbuns, dar sua nota pessoal e ver a média de avaliações dos usuários.
+    </p>
+
+    <div class="info-box">
+        <h2>🔍 Como funciona?</h2>
+        <p>
+            Aqui você encontra listas com os álbuns mais importantes da música brasileira e internacional. Cada álbum possui sua
+            posição no ranking, informações básicas e a <strong>média de avaliações dos usuários</strong>.
         </p>
 
-        <div class="list-options">
-            <a href="/albums/brasil">🎶 500 Álbuns Mais Importantes do Brasil</a>
-            <a href="/albums/rollingstone-internacional">🌍 500 Álbuns da Rolling Stone (Internacional)</a>
-            <a href="/albums/rollingstone-brasil">🇧🇷 100 Álbuns da Rolling Stone Brasil</a>
-        </div>
+        <h3>🔓 Visualização para visitantes (não logados)</h3>
+        <p>
+            Se você estiver apenas navegando sem login, poderá:
+            <ul>
+                Ver as listas completas de álbuns<br>
+                Acessar informações como título, artista, ano e média de avaliação da comunidade
+            </ul>
+        </p>
+
+        <h3>🔐 Vantagens ao fazer login</h3>
+        <p>
+            Ao se autenticar, você terá acesso a recursos extras:
+            <ul>
+                Ver sua <strong>nota pessoal</strong> atribuída a cada álbum<br>
+                Avaliar ou editar sua nota diretamente na lista<br>
+                Comparar sua avaliação com a média dos demais usuários<br>
+            </ul>
+        </p>
+
+        <p>
+            👉 <strong>Faça login</strong> para começar a avaliar os seus discos favoritos e acompanhar sua própria coleção de notas!
+        </p>
     </div>
+
+    <div class="list-options">
+        <a href="/albums/brasil">🎶 500 Álbuns Mais Importantes do Brasil</a>
+        <a href="/albums/rollingstone-internacional">🌍 500 Álbuns da Rolling Stone (Internacional)</a>
+        <a href="/albums/rollingstone-brasil">🇧🇷 100 Álbuns da Rolling Stone Brasil</a>
+    </div>
+</div>
+
 {% endblock %}

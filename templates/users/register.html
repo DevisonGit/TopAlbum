@@ -4,6 +4,11 @@
 {% block content %}
     <div class="form-container">
         <h2>Cadastro de Usuário</h2>
+
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+
         <form action="/users" method="post">
             <input type="text" name="username" placeholder="Usuário" required>
             <input type="email" name="email" placeholder="E-mail" required>

@@ -1,16 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}CRUD FastAPI{% endblock %}</title>
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
-    <body>
-        <main>
-            <a href="/">Home</a>
-            <a href="/login">login</a>
-            <a href="/users">Criar usuario</a>
-            {% block content %}{% endblock %}
-        </main>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Top Álbuns{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="left-links">
+                <a href="/">Home</a>
+                {% if is_authenticated %}
+                {% else %}
+                    <a href="/users">Criar Usuário</a>
+                {% endif %}
+            </div>
+            <div class="right-links">
+                {% if is_authenticated %}
+                    <span class="user-info">👤 {{ user_id }}</span>
+                    <a href="/logout">Sair</a>
+                {% else %}
+                    <a href="/login">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
 </html>

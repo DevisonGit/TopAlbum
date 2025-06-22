@@ -1,0 +1,23 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #0056b3;
+    padding: 10px 20px;
+}
+
+.navbar a,
+.user-info {
+    color: white;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.left-links a {
+    margin-right: 15px;
+}
+
+.right-links {
+    display: flex;
+    align-items: center;
+}

@@ -1,14 +1,19 @@
+<link rel="stylesheet" href="{{ url_for('static', path='users/register.css') }}">
 {% extends "base.html" %}
 
 {% block content %}
 
 {% if user %}
-            <tr>
-                <td>
-                    <div>Usuario: {{ user.name }}</div>
-                    <div>Email: {{ user.email }}</div>
-                </td>
-            </tr>
+    <div class="form-container">
+        <h2>Usuário Cadastrado</h2>
+        <tr>
+            <td>
+                <div>Usuario: {{ user.username }}</div>
+                <div>Email: {{ user.email }}</div>
+            </td>
+        </tr>
+
+    </div>
 
 {% else %}
 {% endif %}

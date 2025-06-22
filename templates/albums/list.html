@@ -1,4 +1,5 @@
-<link rel="stylesheet" href="{{ url_for('static', path='albums/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='albums/list.css') }}">
+
 {% extends "base.html" %}
 
 {% block content %}
@@ -11,9 +12,13 @@
                 <th>Título</th>
                 <th>Artista</th>
                 <th>Ano</th>
-                <th>Nota</th>
+                {% if is_authenticated %}
+                    <th>Sua Nota</th>
+                {% endif %}
                 <th>Media</th>
-                <th>Ações</th>
+                {% if is_authenticated %}
+                    <th>Ações</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -23,15 +28,19 @@
                 <td>{{ album.title }}</td>
                 <td>{{ album.artist }}</td>
                 <td>{{ album.year }}</td>
-                <td>{{ album.rate if album.rate is not none else "N/A" }}</td>
+                {% if is_authenticated %}
+                    <td>{{ album.rate if album.rate is not none else "N/A" }}</td>
+                {% endif %}
                 <td>{{ album.media or "N/A" }}</td>
-                <td>
-                    <a href="/albums/id/{{ album.id }}">Ver Infos</a>
-                    <form action="/albums/{{ album.id }}/rate" method="post">
-                        <input type="number" name="rate" step="0.1" min="0" max="10" value="{{ album.rate or '' }}">
-                        <button type="submit">Salvar nota</button>
-                    </form>
-                </td>
+                {% if is_authenticated %}
+                    <td>
+                        <a href="/albums/id/{{ album.id }}">Ver Infos</a>
+                        <form action="/albums/{{ album.id }}/rate" method="post">
+                            <input type="number" name="rate" step="0.1" min="0" max="10" value="{{ album.rate or '' }}">
+                            <button type="submit">Salvar nota</button>
+                        </form>
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

@@ -1,5 +1,5 @@
 from beanie import Document, Indexed
-from pydantic import EmailStr
+from pydantic import EmailStr, BaseModel
 
 
 class User(Document):
@@ -9,3 +9,8 @@ class User(Document):
 
     class Settings:
         name = 'users'
+
+
+class UserPublic(BaseModel):
+    username: str
+    email: EmailStr

@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
-from jwt import encode, decode, DecodeError
+from jwt import encode, decode, DecodeError, ExpiredSignatureError
 from pwdlib import PasswordHash
 
 from src.settings import Settings
@@ -63,13 +63,13 @@ async def get_current_user(
 def get_current_user_from_cookie(request: Request):
     token = request.cookies.get("access_token")
     if not token:
-        raise HTTPException(status_code=401, detail="Token ausente")
+        return None
 
     try:
         payload = decode(token, Settings().SECRET_KEY, algorithms=[Settings().ALGORITHM])
         username = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Token inválido")
         return username
+    except ExpiredSignatureError:
+        return None
     except DecodeError:
-        raise HTTPException(status_code=401, detail="Token inválido")
+        raise None
