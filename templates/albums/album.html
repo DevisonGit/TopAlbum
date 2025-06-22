@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if album %}
+<tr>
+    <td>
+        <div>Posição: {{ album.ranking }}</div>
+        <div>Título: {{ album.title }}</div>
+        <div>Artista(s): {{ album.artist }}</div>
+        <div>Ano: {{ album.year }}</div>
+        <div>Sua nota: {{ rate or "N/A" }}</div>
+        <div>Média geral: {{ album.media or "N/A" }}</div>
+    </td>
+</tr>
+<br>
+<br>
+<a href="/albums/{{ album.list_type }}">Voltar a lista</a>
+{% else %}
+    <p>Nenhum álbum encontrado.</p>
+{% endif %}
+{% endblock %}

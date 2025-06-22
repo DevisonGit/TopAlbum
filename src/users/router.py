@@ -9,9 +9,9 @@ router = APIRouter(prefix='/users', tags=['users'])
 templates = Jinja2Templates(directory='templates')
 
 
-@router.get("/register", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse)
 async def show_register_form(request: Request):
-    return templates.TemplateResponse("register-user.html", {"request": request})
+    return templates.TemplateResponse("users/register.html", {"request": request})
 
 
 @router.post('/')
@@ -32,5 +32,5 @@ async def create_user(
     await user.insert()
 
     return templates.TemplateResponse(
-        'user.html', {'request': request, 'user': user}
+        'users/user.html', {'request': request, 'user': user}
     )

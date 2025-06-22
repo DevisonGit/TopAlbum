@@ -1,15 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}CRUD FastAPI{% endblock %}</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <main>
-        <a href="/">Home</a>
-        <a href="/auth/token">login</a>
-        {% block content %}{% endblock %}
-    </main>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}CRUD FastAPI{% endblock %}</title>
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <main>
+            <a href="/">Home</a>
+            <a href="/login">login</a>
+            <a href="/users">Criar usuario</a>
+            {% block content %}{% endblock %}
+        </main>
+    </body>
 </html>

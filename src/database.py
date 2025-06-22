@@ -2,7 +2,7 @@ from beanie import init_beanie
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from src.models import Album, AlbumUserRate
+from src.albums.models import Album, AlbumUserRate
 from src.settings import Settings
 from src.users.models import User
 

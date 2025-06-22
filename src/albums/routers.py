@@ -2,15 +2,15 @@ from http import HTTPStatus
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from pymongo.errors import DuplicateKeyError
 
-from src.models import Album, AlbumUpdate, AlbumUserRate
-from src.security import get_current_user, get_current_user_from_cookie
+from src.albums.models import Album, AlbumUserRate
+from src.security import get_current_user_from_cookie
+from src.templates import templates
+
 
 router = APIRouter(prefix='/albums', tags=['albums'])
-templates = Jinja2Templates(directory='templates')
 
 
 @router.get('/{list_type}', response_class=HTMLResponse)
@@ -49,7 +49,7 @@ async def list_albums(
     list_type = titles.get(list_type)
 
     return templates.TemplateResponse(
-        'index.html',
+        'albums/list.html',
         {'request': request, 'albums': albums_data, 'lista': list_type},
     )
 
@@ -69,7 +69,7 @@ async def create_album(album: Album):
 async def get_album_id(
     id: PydanticObjectId,
     request: Request,
-    user_id: str = Depends(get_current_user),
+    user_id: str = Depends(get_current_user_from_cookie),
 ):
     album = await Album.get(id)
     if not album:
@@ -80,34 +80,8 @@ async def get_album_id(
     user_rate = rating.rate if rating else None
 
     return templates.TemplateResponse(
-        'album.html', {'request': request, 'album': album, 'rate': user_rate}
+        'albums/album.html', {'request': request, 'album': album, 'rate': user_rate}
     )
-
-
-@router.put('/{id}')
-async def update_album(id: PydanticObjectId, album: AlbumUpdate):
-    album = {k: v for k, v in album.model_dump().items() if v is not None}
-    update_query = {'$set': {field: value for field, value in album.items()}}
-
-    album = await Album.get(id)
-    if not album:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Album not found'
-        )
-    await album.update(update_query)
-    return album
-
-
-@router.delete('/{id}')
-async def delete_album(id: PydanticObjectId):
-    album = await Album.get(id)
-    if not album:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Album not found'
-        )
-
-    await album.delete()
-    return JSONResponse(content={'ok': True})
 
 
 @router.post('/{id}/rate')
@@ -131,7 +105,7 @@ async def update_rate_album(
         await AlbumUserRate(user_id=user_id, album_id=id, rate=rate).insert()
     await update_media(album)
     return templates.TemplateResponse(
-        'album.html', {'request': request, 'album': album, 'rate': rate}
+        'albums/album.html', {'request': request, 'album': album, 'rate': rate}
     )
 
 

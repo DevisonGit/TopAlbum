@@ -2,18 +2,22 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from src.auth.models import Token
 from src.security import verify_password, create_access_token
 from src.users.models import User
-
-router = APIRouter(prefix='/auth', tags=['auth'])
-templates = Jinja2Templates(directory='templates')
+from src.templates import templates
 
 
-@router.post('/token')
+router = APIRouter(prefix='/login', tags=['auth'])
+
+
+@router.get("/", response_class=HTMLResponse)
+async def login_get(request: Request):
+    return templates.TemplateResponse("auth/login.html", {"request": request})
+
+
+@router.post('/')
 async def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends(),
 ):
@@ -40,8 +44,3 @@ async def login_for_access_token(
     )
 
     return response
-
-
-@router.get("/token", response_class=HTMLResponse)
-async def login_get(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})

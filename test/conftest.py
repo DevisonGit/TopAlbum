@@ -7,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from testcontainers.mongodb import MongoDbContainer
 
 from src.app import app
-from src.models import Album
+from src.albums.models import Album
 
 
 class AlbumFactory(factory.Factory):

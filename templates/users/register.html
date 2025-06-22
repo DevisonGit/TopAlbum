@@ -1,0 +1,14 @@
+<link rel="stylesheet" href="{{ url_for('static', path='users/register.css') }}">
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>Cadastro de Usuário</h2>
+        <form action="/users" method="post">
+            <input type="text" name="username" placeholder="Usuário" required>
+            <input type="email" name="email" placeholder="E-mail" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+    </div>
+{% endblock %}

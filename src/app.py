@@ -3,12 +3,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 from src.database import init_db
-from src.routers import router
+from src.albums.routers import router
 from src.users.router import router as router_user
 from src.auth.routers import router as router_auth
+from src.templates import templates
 
 
 @asynccontextmanager
@@ -21,7 +21,6 @@ async def lifespan(app: FastAPI):  # pragma: no cover
 
 
 app = FastAPI(lifespan=lifespan)
-templates = Jinja2Templates(directory='templates')
 
 
 app.include_router(router)
