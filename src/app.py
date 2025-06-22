@@ -7,6 +7,8 @@ from fastapi.templating import Jinja2Templates
 
 from src.database import init_db
 from src.routers import router
+from src.users.router import router as router_user
+from src.auth.routers import router as router_auth
 
 
 @asynccontextmanager
@@ -23,6 +25,8 @@ templates = Jinja2Templates(directory='templates')
 
 
 app.include_router(router)
+app.include_router(router_user)
+app.include_router(router_auth)
 app.mount('/static', StaticFiles(directory='static'), name='static')
 
 

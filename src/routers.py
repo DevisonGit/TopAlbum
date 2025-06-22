@@ -7,18 +7,15 @@ from fastapi.templating import Jinja2Templates
 from pymongo.errors import DuplicateKeyError
 
 from src.models import Album, AlbumUpdate, AlbumUserRate
+from src.security import get_current_user, get_current_user_from_cookie
 
 router = APIRouter(prefix='/albums', tags=['albums'])
 templates = Jinja2Templates(directory='templates')
 
 
-def get_current_user():
-    return 'user8999'
-
-
 @router.get('/{list_type}', response_class=HTMLResponse)
 async def list_albums(
-    list_type: str, request: Request, user_id: str = Depends(get_current_user)
+    list_type: str, request: Request, user_id: str = Depends(get_current_user_from_cookie)
 ):
     albums = (
         await Album.find(Album.list_type == list_type)
@@ -118,7 +115,7 @@ async def update_rate_album(
     id: PydanticObjectId,
     request: Request,
     rate: float = Form(...),
-    user_id: str = Depends(get_current_user),
+    user_id: str = Depends(get_current_user_from_cookie),
 ):
     album = await Album.get(id)
     if not album:

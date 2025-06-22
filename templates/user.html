@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if user %}
+            <tr>
+                <td>
+                    <div>Usuario: {{ user.name }}</div>
+                    <div>Email: {{ user.email }}</div>
+                </td>
+            </tr>
+
+{% else %}
+{% endif %}
+{% endblock %}
