@@ -6,8 +6,8 @@ from httpx import ASGITransport, AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient
 from testcontainers.mongodb import MongoDbContainer
 
-from src.app import app
 from src.albums.models import Album
+from src.app import app
 
 
 class AlbumFactory(factory.Factory):

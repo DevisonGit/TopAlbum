@@ -9,13 +9,14 @@ from src.albums.models import Album, AlbumUserRate
 from src.security import get_current_user_from_cookie
 from src.templates import templates
 
-
 router = APIRouter(prefix='/albums', tags=['albums'])
 
 
 @router.get('/{list_type}', response_class=HTMLResponse)
 async def list_albums(
-    list_type: str, request: Request, user_id: str = Depends(get_current_user_from_cookie)
+    list_type: str,
+    request: Request,
+    user_id: str = Depends(get_current_user_from_cookie),
 ):
     is_authenticated = user_id is not None
     albums = (
@@ -51,8 +52,12 @@ async def list_albums(
 
     return templates.TemplateResponse(
         'albums/list.html',
-        {'request': request, 'albums': albums_data, 'lista': list_type,
-         'is_authenticated': is_authenticated},
+        {
+            'request': request,
+            'albums': albums_data,
+            'lista': list_type,
+            'is_authenticated': is_authenticated,
+        },
     )
 
 
@@ -82,7 +87,8 @@ async def get_album_id(
     user_rate = rating.rate if rating else None
 
     return templates.TemplateResponse(
-        'albums/album.html', {'request': request, 'album': album, 'rate': user_rate}
+        'albums/album.html',
+        {'request': request, 'album': album, 'rate': user_rate},
     )
 
 
