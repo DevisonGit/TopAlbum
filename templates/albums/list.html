@@ -45,6 +45,17 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="/albums/{{ list_type }}?page={{ page - 1 }}">« Anterior</a>
+        {% endif %}
+
+        <span>Página {{ page }} de {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+            <a href="/albums/{{ list_type }}?page={{ page + 1 }}">Próxima »</a>
+        {% endif %}
+    </div>
 {% else %}
     <p>Nenhum álbum encontrado.</p>
 {% endif %}

@@ -8,6 +8,7 @@ from pymongo.errors import DuplicateKeyError
 from src.albums.models import Album, AlbumUserRate
 from src.security import get_current_user_from_cookie
 from src.templates import templates
+from math import ceil
 
 router = APIRouter(prefix='/albums', tags=['albums'])
 
@@ -16,11 +17,17 @@ router = APIRouter(prefix='/albums', tags=['albums'])
 async def list_albums(
     list_type: str,
     request: Request,
+    page: int = 1, limit: int = 20,
     user_id: str = Depends(get_current_user_from_cookie),
 ):
+
+    skip = (page - 1) * limit
+    total = await Album.find(Album.list_type == list_type).count()
+    total_pages = ceil(total / limit)
+
     is_authenticated = user_id is not None
     albums = (
-        await Album.find(Album.list_type == list_type)
+        await Album.find(Album.list_type == list_type).skip(skip).limit(limit)
         .sort('-ranking')
         .to_list()
     )
@@ -48,15 +55,18 @@ async def list_albums(
         'Rolling Stone (Internacional)',
         'rollingstone-brasil': '100 Álbuns da Rolling Stone Brasil',
     }
-    list_type = titles.get(list_type)
+    list_type_title = titles.get(list_type)
 
     return templates.TemplateResponse(
         'albums/list.html',
         {
             'request': request,
             'albums': albums_data,
-            'lista': list_type,
+            'lista': list_type_title,
             'is_authenticated': is_authenticated,
+            "total_pages": total_pages,
+            "page": page,
+            "list_type": list_type
         },
     )
 
