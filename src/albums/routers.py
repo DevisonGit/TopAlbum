@@ -1,142 +1,55 @@
-from http import HTTPStatus
+from typing import Annotated
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse
-from pymongo.errors import DuplicateKeyError
 
-from src.albums.models import Album, AlbumUserRate
+from src.albums.services import AlbumService
 from src.security import get_current_user_from_cookie
+from src.share.models import FilterPage
 from src.templates import templates
-from math import ceil
 
 router = APIRouter(prefix='/albums', tags=['albums'])
+UserId = Annotated[str, Depends(get_current_user_from_cookie)]
 
 
 @router.get('/{list_type}', response_class=HTMLResponse)
 async def list_albums(
     list_type: str,
     request: Request,
-    page: int = 1, limit: int = 20,
-    user_id: str = Depends(get_current_user_from_cookie),
+    user_id: UserId,
+    page: int = Query(1),
+    limit: int = Query(20),
 ):
+    filter_page = FilterPage(page=page, limit=limit)
+    service = AlbumService(filter_page, user_id, list_type)
+    albums_ratings = await service.get_albums()
+    albums_ratings.update({'request': request})
 
-    skip = (page - 1) * limit
-    total = await Album.find(Album.list_type == list_type).count()
-    total_pages = ceil(total / limit)
-
-    is_authenticated = user_id is not None
-    albums = (
-        await Album.find(Album.list_type == list_type).skip(skip).limit(limit)
-        .sort('-ranking')
-        .to_list()
-    )
-    ratings = await AlbumUserRate.find(
-        AlbumUserRate.user_id == user_id
-    ).to_list()
-    ratings_dict = {r.album_id: r.rate for r in ratings}
-
-    albums_data = []
-
-    for album in albums:
-        albums_data.append({
-            'id': str(album.id),
-            'ranking': album.ranking,
-            'title': album.title,
-            'artist': album.artist,
-            'year': album.year,
-            'media': album.media,
-            'rate': ratings_dict.get(album.id),
-        })
-
-    titles = {
-        'brasil': '500 Álbuns Mais Importantes do Brasil',
-        'rollingstone-internacional': '500 Álbuns da '
-        'Rolling Stone (Internacional)',
-        'rollingstone-brasil': '100 Álbuns da Rolling Stone Brasil',
-    }
-    list_type_title = titles.get(list_type)
-
-    return templates.TemplateResponse(
-        'albums/list.html',
-        {
-            'request': request,
-            'albums': albums_data,
-            'lista': list_type_title,
-            'is_authenticated': is_authenticated,
-            "total_pages": total_pages,
-            "page": page,
-            "list_type": list_type
-        },
-    )
+    return templates.TemplateResponse('albums/list.html', albums_ratings)
 
 
-@router.post('/', status_code=HTTPStatus.CREATED)
-async def create_album(album: Album):
-    try:
-        album = await album.create()
-        return album
-    except DuplicateKeyError:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail='Ranking in use'
-        )
-
-
-@router.get('/id/{id}')
+@router.get('/id/{album_id}')
 async def get_album_id(
-    id: PydanticObjectId,
+    album_id: PydanticObjectId,
     request: Request,
     user_id: str = Depends(get_current_user_from_cookie),
 ):
-    album = await Album.get(id)
-    if not album:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Album not found'
-        )
-    rating = await AlbumUserRate.find_one({'user_id': user_id, 'album_id': id})
-    user_rate = rating.rate if rating else None
+    service = AlbumService(user_id=user_id)
+    album = await service.get_album(album_id)
+    album.update({'request': request})
 
-    return templates.TemplateResponse(
-        'albums/album.html',
-        {'request': request, 'album': album, 'rate': user_rate},
-    )
+    return templates.TemplateResponse('albums/album.html', album)
 
 
-@router.post('/{id}/rate')
+@router.post('/{album_id}/rate')
 async def update_rate_album(
-    id: PydanticObjectId,
+    album_id: PydanticObjectId,
     request: Request,
     rate: float = Form(...),
     user_id: str = Depends(get_current_user_from_cookie),
 ):
-    album = await Album.get(id)
-    if not album:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Album not found'
-        )
-    rating = await AlbumUserRate.find_one({'user_id': user_id, 'album_id': id})
-
-    if rating:
-        rating.rate = rate
-        await rating.save()
-    else:
-        await AlbumUserRate(user_id=user_id, album_id=id, rate=rate).insert()
-    await update_media(album)
-    return templates.TemplateResponse(
-        'albums/album.html', {'request': request, 'album': album, 'rate': rate}
-    )
-
-
-async def update_media(album):
-    ratings = await AlbumUserRate.find(
-        AlbumUserRate.album_id == album.id
-    ).to_list()
-    media = (
-        round(sum(r.rate for r in ratings) / len(ratings), 2)
-        if ratings
-        else None
-    )
-
-    # Atualiza o campo no álbum
-    album.media = media
-    await album.save()
+    service = AlbumService(user_id=user_id)
+    album = await service.update_rate(album_id, rate)
+    album.update({'request': request})
+    return templates.TemplateResponse('albums/album.html', album)

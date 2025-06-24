@@ -5,45 +5,15 @@ from bson import ObjectId
 
 
 @pytest.mark.asyncio
-async def test_create_album(client):
-    response = await client.post(
-        '/albums/',
-        json={
-            'artist': 'Test artist',
-            'year': 2025,
-            'ranking': 1,
-            'title': 'Test title!',
-        },
-    )
-    assert response.status_code == HTTPStatus.CREATED
-    assert response.json()['title'] == 'Test title!'
-
-
-@pytest.mark.asyncio
-async def test_create_album_duplicated(client, album):
-    response = await client.post(
-        '/albums/',
-        json={
-            'artist': 'Test artist',
-            'year': 2025,
-            'ranking': album.ranking,
-            'title': 'Test title!',
-        },
-    )
-
-    assert response.status_code == HTTPStatus.BAD_REQUEST
-    assert response.json() == {'detail': 'Ranking in use'}
-
-
-@pytest.mark.asyncio
-async def test_get_albums(client, album):
+async def test_get_albums(client, album, token):
     album = album.model_dump()
-    album['_id'] = str(ObjectId(album['id']))
-    album.pop('id')
-    response = await client.get('/albums/')
+
+    response = await client.get(
+        f'/albums/{album['list_type']}',
+        cookies={"access_token": token},
+    )
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == [album]
 
 
 @pytest.mark.asyncio
