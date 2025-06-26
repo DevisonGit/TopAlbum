@@ -5,6 +5,7 @@
 {% if album %}
 <tr>
     <td>
+        <p>
         <div>Posição: {{ album.ranking }}</div>
         <div>Título: {{ album.title }}</div>
         <div>Artista(s): {{ album.artist }}</div>
@@ -13,7 +14,6 @@
         <div>Média geral: {{ album.media or "N/A" }}</div>
     </td>
 </tr>
-<br>
 <br>
 <a href="/albums/{{ album.list_type }}">Voltar a lista</a>
 {% else %}

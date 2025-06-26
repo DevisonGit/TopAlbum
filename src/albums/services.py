@@ -78,6 +78,7 @@ class AlbumService:
 
     async def get_album(self, album_id: PydanticObjectId) -> dict:
         album = await Album.get(album_id)
+        is_authenticated = self.user_id is not None
         if not album:
             return {'album': album}
         rating = await AlbumUserRate.find_one({
@@ -85,11 +86,12 @@ class AlbumService:
             'album_id': album_id,
         })
         user_rate = rating.rate if rating else None
-        return {'album': album, 'rate': user_rate}
+        return {'album': album, 'rate': user_rate, 'is_authenticated': is_authenticated,}
 
     async def update_rate(
         self, album_id: PydanticObjectId, rate: float
     ) -> dict:
+        is_authenticated = self.user_id is not None
         album = await Album.get(album_id)
         if not album:
             return {'album': album}
@@ -105,7 +107,7 @@ class AlbumService:
                 user_id=self.user_id, album_id=album_id, rate=rate
             ).insert()
         await self.update_media(album)
-        return {'album': album, 'rate': rate}
+        return {'album': album, 'rate': rate, 'is_authenticated': is_authenticated,}
 
     @staticmethod
     async def update_media(album):
